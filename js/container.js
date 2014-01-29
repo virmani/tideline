@@ -110,7 +110,7 @@ module.exports = function() {
           .attr('id', 'tidelineScrollNav');
 
         nav.scrollScale = d3.time.scale.utc()
-          .domain([Date.parse(data[0].time), Date.parse(currentData[0].time)])
+          .domain([Date.parse(data[0].utcTimestamp), Date.parse(currentData[0].utcTimestamp)])
           .range([container.axisGutter(), width]);
       }
     });
@@ -126,7 +126,7 @@ module.exports = function() {
     var end = new Date(endpoints[1]);
 
     readings = _.filter(data, function(datapoint) {
-      t = Date.parse(datapoint.time);
+      t = Date.parse(datapoint.utcTimestamp);
       if (direction == 'both') {
         if ((t >= start) && (t <= end)) {
           return datapoint;
@@ -518,8 +518,8 @@ module.exports = function() {
   container.data = function(a) {
     if (!arguments.length) return data;
     data = a;
-    var first = Date.parse(a[0].time);
-    var last = Date.parse(a[a.length - 1].time);
+    var first = Date.parse(a[0].utcTimestamp);
+    var last = Date.parse(a[a.length - 1].utcTimestamp);
     var minusOne = new Date(last);
     minusOne.setDate(minusOne.getDate() - 1);
     initialEndpoints = [minusOne, last];
@@ -546,7 +546,7 @@ module.exports = function() {
     if (beginningOfData < minus) {
       container.beginningOfData(minus); 
       allData = _.filter(allData, function(datapoint) {
-        var t = Date.parse(datapoint.time);
+        var t = Date.parse(datapoint.utcTimestamp);
         if (t >= minus) {
           return t;
         }
@@ -555,13 +555,13 @@ module.exports = function() {
     if (endOfData > plus) {
       container.endOfData(plus);
       allData = _.filter(allData, function(datapoint) {
-        var t = Date.parse(datapoint.time);
+        var t = Date.parse(datapoint.utcTimestamp);
         if (t <= plus) {
           return t;
         }
       });
     }
-    allData = _.sortBy(allData, 'time');
+    allData = _.sortBy(allData, 'utcTimestamp');
     return pool;
   };
 
