@@ -13,7 +13,7 @@ module.exports = function() {
     pad,
     nav = {},
     pools = [], gutter,
-    xScale = d3.time.scale.utc(),
+    xScale = d3.time.scale(),
     xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0),
     beginningOfData, endOfData, data, allData = [], buffer, endpoints, outerEndpoints, initialEndpoints,
     mainGroup, poolGroup, scrollNav, scrollHandleTrigger = true;
@@ -109,7 +109,7 @@ module.exports = function() {
           .attr('class', 'x scroll')
           .attr('id', 'tidelineScrollNav');
 
-        nav.scrollScale = d3.time.scale.utc()
+        nav.scrollScale = d3.time.scale()
           .domain([Date.parse(data[0].utcTimestamp), Date.parse(currentData[0].utcTimestamp)])
           .range([container.axisGutter(), width]);
       }

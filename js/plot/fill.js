@@ -1,11 +1,7 @@
 module.exports = function(pool, opts) {
 
   var first = new Date(opts.endpoints[0]),
-    last = new Date(opts.endpoints[1]),
     nearest, fills = [];
-
-  first.setMinutes(first.getMinutes() + first.getTimezoneOffset());
-  last.setMinutes(last.getMinutes() + last.getTimezoneOffset());
 
   var defaults = {
     classes: {
@@ -26,22 +22,18 @@ module.exports = function(pool, opts) {
 
   function fill(selection) {
     fill.findNearest(opts.endpoints[1]);
-    var otherNear = new Date(nearest);
-    otherNear.setMinutes(otherNear.getMinutes() - otherNear.getTimezoneOffset());
     fills.push({
-      width: opts.scale(last) - opts.scale(nearest),
-      x: opts.scale(otherNear),
+      width: opts.scale(opts.endpoints[1]) - opts.scale(nearest),
+      x: opts.scale(nearest),
       fill: opts.classes[nearest.getHours()]
     });
     current = new Date(nearest);
     while (current > first) {
       var next = new Date(current);
       next.setHours(current.getHours() - opts.duration);
-      var otherNext = new Date(next);
-      otherNext.setMinutes(otherNext.getMinutes() - otherNext.getTimezoneOffset());
       fills.push({
         width: opts.scale(current) - opts.scale(next),
-        x: opts.scale(otherNext),
+        x: opts.scale(next),
         fill: opts.classes[next.getHours()]
       });
       current = next;
@@ -67,7 +59,6 @@ module.exports = function(pool, opts) {
 
   fill.findNearest = function(d) {
     var date = new Date(d);
-    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
     var hourBreaks = [];
     var i = 0;
     while (i <= 24) {
