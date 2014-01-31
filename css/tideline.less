@@ -65,12 +65,29 @@ svg {
   }
 }
 
-.d3-rect-carbs {
-  fill: @carbs;
+.d3-bolus {
+   &.d3-rect-bolus {
+    fill: @bolus;
+  }
+
+  &.d3-path-recommended {
+    &.d3-higher {
+      fill: none;
+      stroke: @bolus;
+    }
+    &.d3-lower {
+      fill: none;
+      stroke: white;
+    }
+    &.d3-lower-triangle {
+      fill: white;
+      stroke: none;
+    }  
+  } 
 }
 
-.d3-rect-bolus {
-  fill: @bolus;
+.d3-rect-carbs {
+  fill: @carbs;
 }
 
 .d3-cbg, .d3-smbg {
