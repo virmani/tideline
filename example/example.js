@@ -31,7 +31,7 @@ d3.json('device-data.json', function(data) {
     })
     .append('image')
     .attr({
-      'xlink:href': '../img/extended_bolus_fill.png',
+      'xlink:href': '../img/bolus/extended_bolus_fill.png',
       'x': 0,
       'y': 0,
       'width': 50,
