@@ -16,6 +16,28 @@ d3.json('device-data.json', function(data) {
 
   d3.select('#tidelineContainer').datum(container.getData()).call(container);
 
+  // SVG definitions
+  // TODO: pool.js should perhaps have an API for defining these per pool
+  // or maybe container.js should have it, if the same patterns might occur across multiple pools
+  var svgDefinitions = d3.select('#tidelineSVG').append('defs');
+  // create extended bolus pattern fill definition
+  d3.select('defs')
+    .append('pattern')
+    .attr({
+      'id': 'extendedBolusFill',
+      'width': 50,
+      'height': 50,
+      'patternUnits': 'userSpaceOnUse'
+    })
+    .append('image')
+    .attr({
+      'xlink:href': '../img/extended_bolus_fill.png',
+      'x': 0,
+      'y': 0,
+      'width': 50,
+      'height': 50
+    });
+
   // set up click-and-drag and scroll navigation
   container.setNav().setScrollNav();
 

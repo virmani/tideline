@@ -1,10 +1,15 @@
+// TODO: remove; watson shouldn't be a dependency outside of example/
+// just here for now to ease development
+var watson = require('../../example/watson');
+
 module.exports = function(pool, opts) {
 
   var opts = opts || {};
 
   var defaults = {
     xScale: pool.xScale().copy(),
-    width: 8
+    width: 12,
+    bolusStroke: 2
   };
 
   _.defaults(opts, defaults);
@@ -38,6 +43,28 @@ module.exports = function(pool, opts) {
           'class': 'd3-rect-bolus d3-bolus',
           'id': function(d) {
             return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+          }
+        });
+      // square- and dual-wave boluses
+      bolusGroups.filter(function(d) {
+        if (d.extended) {
+          return d;
+        }
+      })
+        .append('path')
+        .attr({
+          'd': function(d) {
+            var rightEdge = bolus.x(d) + opts.width;
+            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var mid = opts.yScale(d.extendedDelivery/2);
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
+            return "M" + rightEdge + ' ' + doseHeight + "L" + doseEnd + ' ' + mid + "L" + rightEdge + ' ' + (top - opts.bolusStroke / 2) + "Z";
+          },
+          'stroke-width': opts.bolusStroke,
+          'fill': 'url(#extendedBolusFill)',
+          'class': 'd3-path-extended d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
           }
         });
       boluses.exit().remove();
