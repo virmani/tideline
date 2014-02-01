@@ -3,8 +3,9 @@ module.exports = function(pool, opts) {
   var opts = opts || {};
 
   var defaults = {
-    xScale: pool.xScale().copy(),
-    width: 8
+    xScale: pool.xScale().copy().nice(),
+    width: 12,
+    bolusStroke: 2
   };
 
   _.defaults(opts, defaults);
@@ -23,7 +24,14 @@ module.exports = function(pool, opts) {
           'class': 'd3-bolus-group'
         });
       var top = opts.yScale.range()[0];
-      bolusGroups.append('rect')
+
+      // boluses where delivered = recommended
+      bolusGroups.filter(function(d) {
+        if (d.value === d.recommended) {
+          return d;
+        }
+      })
+        .append('rect')
         .attr({
           'x': function(d) {
             return bolus.x(d);
@@ -36,6 +44,82 @@ module.exports = function(pool, opts) {
             return top - opts.yScale(d.value);
           },
           'class': 'd3-rect-bolus d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+          }
+        });
+      // boluses where recommendation and delivery differ
+      var bottom = top - opts.bolusStroke / 2;
+      // boluses where recommended > delivered
+      var underride = bolusGroups.filter(function(d) {
+        if (d.recommended > d.value) {
+          return d;
+        }
+      });
+      underride.append('rect')
+        .attr({
+          'x': function(d) {
+            return bolus.x(d) + opts.bolusStroke;
+          },
+          'y': function(d) {
+            return opts.yScale(d.value);
+          },
+          'width': opts.width - 2 * opts.bolusStroke,
+          'height': function(d) {
+            return top - opts.yScale(d.value) - opts.bolusStroke;
+          },
+          'class': 'd3-rect-bolus d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+          }
+        });
+      underride.append('path')
+        .attr({
+          'd': function(d) {
+            var leftEdge = bolus.x(d) + opts.bolusStroke / 2;
+            var rightEdge = leftEdge + opts.width - opts.bolusStroke;
+            var recHeight = opts.yScale(d.recommended) - opts.bolusStroke / 2;
+            return "M" + leftEdge + ' ' + bottom + "L" + rightEdge + ' ' + bottom + "L" + rightEdge + ' ' + recHeight + "L" + leftEdge + ' ' + recHeight + "Z";
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-path-recommended d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+          }
+        });
+      // boluses where delivered > recommended
+      var override = bolusGroups.filter(function(d) {
+        if (d.value > d.recommended) {
+          return d;
+        }
+      });
+      override.append('rect')
+        .attr({
+          'x': function(d) {
+            return bolus.x(d) + opts.bolusStroke;
+          },
+          'y': function(d) {
+            return opts.yScale(d.value);
+          },
+          'width': opts.width - 2 * opts.bolusStroke,
+          'height': function(d) {
+            return opts.yScale(d.recommended) - opts.yScale(d.value) - opts.bolusStroke / 2;
+          },
+          'class': 'd3-rect-bolus d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+          }
+        });
+      override.append('path')
+        .attr({
+          'd': function(d) {
+            var leftEdge = bolus.x(d) + opts.bolusStroke / 2;
+            var rightEdge = leftEdge + opts.width - opts.bolusStroke;
+            var bolusHeight = opts.yScale(d.value) - opts.bolusStroke / 2;
+            return "M" + leftEdge + ' ' + bottom + "L" + rightEdge + ' ' + bottom + "L" + rightEdge + ' ' + bolusHeight + "L" + leftEdge + ' ' + bolusHeight + "Z";
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-path-recommended d3-bolus',
           'id': function(d) {
             return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
           }
