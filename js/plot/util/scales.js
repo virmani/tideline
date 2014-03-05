@@ -27,7 +27,7 @@ var scales = {
   },
   bgLog: function(data, pool, pad) {
     var scale = d3.scale.log()
-      .domain(d3.extent(data, function(d) { return d.value; }))
+      .domain([10, d3.max(data, function(d) { return d.value; })])
       .range([pool.height() - pad, pad]);
     return scale;
   },
